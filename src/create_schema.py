@@ -60,6 +60,18 @@ def criar_schema():
             )
         """)
 
+        cursor.execute("""
+        CREATE TABLE IF NOT EXISTS cdc_log (
+        log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT,
+        tabela TEXT,
+        operacao TEXT,
+        identificador TEXT,
+        dados_antes TEXT,
+        dados_depois TEXT
+    )
+    """)
+
         conexao.commit()
         print("Tabelas 'customers', 'orders', 'order_items', 'order_payments' criadas com sucesso!")
 
