@@ -96,13 +96,18 @@ def simular_novo_pagamento(cursor):
     """, (order_id,))
     maior_sequencial = cursor.fetchone()[0]
 
+    if maior_sequencial is None:
+        print(f"Pedido {order_id} não possui pagamentos registrados. Pulando simulação.")
+        return
+
     novo_sequencial = maior_sequencial + 1
     payment_type = "voucher"
     payment_installments = 1
     payment_value = 50.0
 
     cursor.execute("""
-        INSERT INTO order_payments VALUES (?, ?, ?, ?, ?)
+        INSERT INTO order_payments (order_id, payment_sequential, payment_type, payment_installments, payment_value)
+        VALUES (?, ?, ?, ?, ?)
     """, (order_id, novo_sequencial, payment_type, payment_installments, payment_value))
 
     registrar_log(

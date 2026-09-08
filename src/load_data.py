@@ -23,15 +23,18 @@ def carregar_customers(cursor):
 
     for linha in df_customers.itertuples():
         cursor.execute(
-            "INSERT INTO customers VALUES (?, ?, ?, ?, ?)",
-            (
-                linha.customer_id,
-                linha.customer_unique_id,
-                linha.customer_zip_code_prefix,
-                linha.customer_city,
-                linha.customer_state,
-            )
-        )
+    """
+    INSERT INTO customers (customer_id, customer_unique_id, customer_zip_code_prefix, customer_city, customer_state)
+    VALUES (?, ?, ?, ?, ?)
+    """,
+    (
+        linha.customer_id,
+        linha.customer_unique_id,
+        linha.customer_zip_code_prefix,
+        linha.customer_city,
+        linha.customer_state,
+    )
+)
 
     print(f"{len(df_customers)} clientes inseridos.")
 
@@ -42,18 +45,21 @@ def carregar_orders(cursor):
 
     for linha in df_orders.itertuples():
         cursor.execute(
-            "INSERT INTO orders VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                linha.order_id,
-                linha.customer_id,
-                linha.order_status,
-                linha.order_purchase_timestamp,
-                linha.order_approved_at,
-                linha.order_delivered_carrier_date,
-                linha.order_delivered_customer_date,
-                linha.order_estimated_delivery_date,
-            )
-        )
+    """
+    INSERT INTO orders (order_id, customer_id, order_status, order_purchase_timestamp, order_approved_at, order_delivered_carrier_date, order_delivered_customer_date, order_estimated_delivery_date)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """,
+    (
+        linha.order_id,
+        linha.customer_id,
+        linha.order_status,
+        linha.order_purchase_timestamp,
+        linha.order_approved_at,
+        linha.order_delivered_carrier_date,
+        linha.order_delivered_customer_date,
+        linha.order_estimated_delivery_date,
+    )
+)
 
     print(f"{len(df_orders)} pedidos inseridos.")
 
@@ -63,17 +69,20 @@ def carregar_order_items(cursor):
 
     for linha in df_order_items.itertuples():
         cursor.execute(
-            "INSERT INTO order_items VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (
-                linha.order_id,
-                linha.order_item_id,
-                linha.product_id,
-                linha.seller_id,
-                linha.shipping_limit_date,
-                linha.price,
-                linha.freight_value,
-            )
-        )
+    """
+    INSERT INTO order_items (order_id, order_item_id, product_id, seller_id, shipping_limit_date, price, freight_value)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """,
+    (
+        linha.order_id,
+        linha.order_item_id,
+        linha.product_id,
+        linha.seller_id,
+        linha.shipping_limit_date,
+        linha.price,
+        linha.freight_value,
+    )
+)
 
     print(f"{len(df_order_items)} itens de pedido inseridos.")
 
@@ -84,15 +93,18 @@ def carregar_order_payments(cursor):
 
     for linha in df_order_payments.itertuples():
         cursor.execute(
-            "INSERT INTO order_payments VALUES (?, ?, ?, ?, ?)",
-            (
-                linha.order_id,
-                linha.payment_sequential,
-                linha.payment_type,
-                linha.payment_installments,
-                linha.payment_value,
-            )
-        )
+    """
+    INSERT INTO order_payments (order_id, payment_sequential, payment_type, payment_installments, payment_value)
+    VALUES (?, ?, ?, ?, ?)
+    """,
+    (
+        linha.order_id,
+        linha.payment_sequential,
+        linha.payment_type,
+        linha.payment_installments,
+        linha.payment_value,
+    )
+)
 
     print(f"{len(df_order_payments)} pagamentos inseridos.")
 
