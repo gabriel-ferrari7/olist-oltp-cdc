@@ -78,7 +78,7 @@ olist-oltp-cdc/
 
 ```bash
 # 1. Clone o repositório
-git clone <url-do-repositorio>
+git clone https://github.com/gabriel-ferrari7/olist-oltp-cdc.git
 cd olist-oltp-cdc
 
 # 2. Crie e ative o ambiente virtual
