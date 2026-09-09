@@ -52,6 +52,23 @@ Cada mudança é registrada com: `timestamp`, `tabela`, `operação`, `identific
 - `DELETE` → registra só o antes (a linha deixa de existir)
 - `INSERT` → registra só o depois (a linha não existia antes)
 
+## Fluxo da arquitetura
+
+```mermaid
+flowchart TD
+    A[CSVs do Olist] --> B[load_data.py]
+    B --> C[(SQLite - OLTP)]
+    C --> D[simulate_transactions.py]
+    D --> E[UPDATE: status do pedido]
+    D --> F[DELETE: item do pedido]
+    D --> G[INSERT: novo pagamento]
+    E --> H[cdc_logger.py]
+    F --> H
+    G --> H
+    H --> I[(cdc_log)]
+    H --> J[logs/cdc.log]
+```
+
 ## Estrutura de pastas
 ```
 olist-oltp-cdc/
@@ -104,8 +121,30 @@ python src/simulate_transactions.py
 Após rodar, é possível consultar o resultado diretamente:
 
 ```bash
-python -c "import sqlite3; conexao = sqlite3.connect('db/olist.sqlite'); cursor = conexao.cursor(); cursor.execute('SELECT * FROM cdc_log'); [print(l) for l in cursor.fetchall()]"
+python -c "import sqlite3; conexao = sqlite3.connect('db/olist.sqlite'); cursor = conexao.cursor(); cursor.execute('SELECT * FROM cdc_log'); [print(l) for l in cursor.fetchall()]" 
 ```
+
+## Exemplo de execução
+
+Rodando a simulação de transações:
+
+```bash
+$ python src/simulate_transactions.py
+Pedido 7c259a397799aa0b7043c30ff9d042a5 atualizado de 'shipped' para 'delivered'.
+Item 1 do pedido 8462b558a3e124a93d9f7f3873028799 foi cancelado (removido).
+Novo pagamento (sequencial 2) inserido para o pedido 8564eda5247ce8353cdf36e0ccd2f2c7.
+```
+
+Consultando o log de CDC gerado:
+
+```bash
+$ python -c "import sqlite3; conexao = sqlite3.connect('db/olist.sqlite'); cursor = conexao.cursor(); cursor.execute('SELECT * FROM cdc_log'); [print(l) for l in cursor.fetchall()]"
+(1, '2026-09-08T17:32:34.657026', 'orders', 'UPDATE', '7c259a397799aa0b7043c30ff9d042a5', '{"order_status": "shipped"}', '{"order_status": "delivered"}')
+(2, '2026-09-08T17:32:34.680074', 'order_items', 'DELETE', '8462b558a3e124a93d9f7f3873028799:1', '{"product_id": "71bd8f5de551c71f6ff1386868d57526", ...}', None)
+(3, '2026-09-08T17:32:34.693972', 'order_payments', 'INSERT', '8564eda5247ce8353cdf36e0ccd2f2c7:2', None, '{"payment_type": "voucher", "payment_installments": 1, "payment_value": 50.0}')
+```
+
+Repare como cada operação (`UPDATE`, `DELETE`, `INSERT`) gera um registro correspondente no log, com o estado antes/depois preservado.
 
 ## Tecnologias utilizadas
 
